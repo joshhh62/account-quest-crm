@@ -124,7 +124,7 @@ export function mountScene(host, a, openRef) {
     if (i === n) { bubble.append(mk("b", "", "The docks"), mk("div", "s-t", dockText), mk("div", "s-m", "click for the usage file")); return; }
     const p = people[i];
     bubble.append(mk("b", "", p.name), mk("div", "s-m", `${p.role} · ${p.relationship || "not on file"}${p.available === false ? " · away" : ""}`));
-    (p.facts.slice(0, 2)).forEach((f) => bubble.append(mk("div", "s-t", f)));
+    p.facts.slice(0, 1).forEach((f) => bubble.append(mk("div", "s-t", f.length > 150 ? f.slice(0, 147) + "..." : f)));
     if (!p.facts.length) bubble.append(mk("div", "s-t", "Not tied to a deal in the power map yet."));
     bubble.append(mk("div", "s-m", "click for the source"));
   }
@@ -154,9 +154,10 @@ export function mountScene(host, a, openRef) {
     }
     if (!bubble.hidden) {
       const px = want === n ? dockX : people[want].x;
-      const pct = Math.max(14, Math.min(86, (px / W) * 100));
-      bubble.style.left = pct + "%";
-      bubble.style.top = Math.max(4, (st.dy / H) * wrap.clientHeight - 20 - bubble.offsetHeight) + "px";
+      const right = px < W / 2;
+      bubble.style.left = ((px / W) * 100 + (right ? 6 : -6)) + "%";
+      bubble.style.transform = right ? "none" : "translateX(-100%)";
+      bubble.style.top = "6px";
     }
     raf = requestAnimationFrame(frame);
   }

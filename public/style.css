@@ -142,7 +142,7 @@ button.act:disabled{opacity:.5;cursor:wait}
 .s-p:focus-visible,.s-p:hover{background:rgba(224,104,44,.10)}
 .s-n{font:700 11px/1 var(--mono);color:#f3efe6;background:rgba(14,14,16,.8);padding:2px 6px;margin-bottom:2.2%;letter-spacing:.04em;text-transform:lowercase}
 .s-p:hover .s-n,.s-p:focus-visible .s-n{background:var(--orange);color:#190a03}
-.s-bubble{position:absolute;transform:translateX(-50%);width:max-content;max-width:min(320px,62%);background:#f3efe6;color:#1d1410;border:2px solid #2a1a12;box-shadow:4px 4px 0 #000;padding:8px 11px;font:12px/1.45 var(--mono);pointer-events:none;z-index:3}
+.s-bubble{position:absolute;width:max-content;max-width:min(300px,40%);background:#f3efe6;color:#1d1410;border:2px solid #2a1a12;box-shadow:4px 4px 0 #000;padding:8px 11px;font:12px/1.45 var(--mono);pointer-events:none;z-index:3}
 .s-bubble[hidden]{display:none}
 .s-bubble b{font-size:13px}.s-t{margin-top:5px}.s-m{color:#7a6656;font-size:11px;margin-top:4px}
 .scene-hint{margin:8px 0 16px}
