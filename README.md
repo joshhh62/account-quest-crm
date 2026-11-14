@@ -44,3 +44,23 @@ variable (mark it sensitive), deploy. `api/state.js` and `api/notes.js` are the 
 - A serverless host can run several instances; each keeps its own cache, and the token's one-call-a-minute limit
   is shared, so a busy instance may show "last copy" for a minute while another instance holds the budget.
 - The ranking weights are a judgement call and are written in `lib/engine.js` (`priority`).
+
+## All 14 MCP tools
+
+The Toolkit section at the bottom of each account lists every tool, what the CRM uses it for, its last result and how many times it has been called.
+
+| Tool | Used for |
+|---|---|
+| whoami | Change detector: more events than we hold triggers a fresh get_signals |
+| get_my_accounts, get_signals | The five answers and the live events |
+| list_notes, write_note | Notes written back once per event, never twice |
+| get_data_format | Schema check on every live export |
+| list_paperwork | Record index, flags paperwork that appears while the server runs |
+| get_all_paperwork, get_paperwork_record | Source drawer reads the live text, contracts are re-read |
+| get_file | Opens the game's files for the source drawer |
+| search_paperwork | The search box (GET /api/search?q=) |
+| get_feature_requests | Product requests this account raised |
+| get_release_notes | Rules a dock update in or out as the cause of a usage drop |
+| get_flytbase_team | Who to pull in, beside each move owner |
+
+One call a minute covers all of them, so the server rotates through them after the core steps.
