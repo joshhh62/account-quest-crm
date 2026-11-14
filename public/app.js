@@ -20,11 +20,8 @@ function when(days) {
 function renderStatus() {
   const s = view.status, el = $("#status");
   const age = (t) => (t ? Math.max(0, Math.round((s.now - t) / 1000)) + "s ago" : "not yet");
-  el.innerHTML = `As of <b>${esc(view.asOf)}</b> (latest event on file)<br>
-    Accounts <span class="pill ${s.accounts === "live" ? "live" : "base"}">${s.accounts === "live" ? "live" : "last copy"}</span> ${age(s.accountsAt)} ·
-    Events <span class="pill ${s.signals === "live" ? "live" : "base"}">${s.signals === "live" ? "live" : "last copy"}</span> ${age(s.signalsAt)}<br>
-    Next MCP call in ${Math.ceil(s.nextCallInMs / 1000)}s (one call a minute) ·
-    notes written back: ${s.notesWritten.length}${s.error ? `<br><span class="overdue">last MCP error: ${esc(s.error.message)}</span>` : ""}${s.tokenConfigured ? "" : `<br><span class="overdue">AQ_TOKEN is not set on the server</span>`}`;
+  const ok = (k) => `<span class="pill ${k === "live" ? "live" : "base"}">${k === "live" ? "live" : "last copy"}</span>`;
+  el.innerHTML = `<span>As of <b>${esc(view.asOf)}</b></span><span>Accounts ${ok(s.accounts)} ${age(s.accountsAt)}</span><span>Events ${ok(s.signals)} ${age(s.signalsAt)}</span><span>Notes written: <b>${s.notesWritten.length}</b></span><span>Next call ${Math.ceil(s.nextCallInMs / 1000)}s</span>${s.error ? `<span class="overdue">MCP: ${esc(s.error.message)}</span>` : ""}${s.tokenConfigured ? "" : `<span class="overdue">AQ_TOKEN not set</span>`}`;
 }
 
 function renderNewBar() {
