@@ -147,9 +147,9 @@ function toolkit(a) {
     <div class="tk-card"><h4>FlytBase people to pull in <small class="meta">(get_flytbase_team)</small></h4>
       ${(k.team || []).map((p) => { const on = owners.toLowerCase().includes(String(p.name).toLowerCase()); return `<div class="tk-row${on ? " on" : ""}"><b>${esc(p.name)}</b>${on ? ' <span class="badge new">on a move</span>' : ""}<br><span class="meta">${esc(p.role)}</span></div>`; }).join("")}</div>
     <div class="tk-card"><h4>Records and files <small class="meta">(list_paperwork, get_all_paperwork, get_paperwork_record, get_file)</small></h4>
-      <div class="tk-row">${pw ? `<b>${esc(pw.records)}</b> records on file for this account${pw.newSinceStart.length ? `, <span class="overdue">${pw.newSinceStart.length} new since the server started</span>` : ", none new since the server started"}.` : '<span class="meta">Index not read yet.</span>'}</div>
-      <div class="tk-row">${con && con.loaded ? `Contract re-read live (${esc(con.chars)} characters)${con.noAutoRenewal ? ' and it still says <b>no automatic renewal</b>.' : "."}` : '<span class="meta">Contract not re-read yet.</span>'}</div>
-      ${files.map((f) => `<div class="tk-row"><span class="chip" data-ref="${esc(f.id)}">${esc(f.id)}</span> ${f.loaded ? `opened live (${esc(f.chars)} characters)` : '<span class="meta">not opened yet</span>'}</div>`).join("")}</div>
+      <div class="tk-row">${pw ? `<b>${esc(pw.records)}</b> records on file for this account${pw.copy ? " (index read earlier, refreshes live)" : ""}${pw.newSinceStart.length ? `, <span class="overdue">${pw.newSinceStart.length} new since the server started</span>` : ", none new since the server started"}.` : '<span class="meta">Index not read yet.</span>'}</div>
+      <div class="tk-row">${con && con.loaded ? `Contract re-read ${con.copy ? 'earlier' : 'live'} (${esc(con.chars)} characters)${con.noAutoRenewal ? ' and it still says <b>no automatic renewal</b>.' : "."}` : '<span class="meta">Contract not re-read yet.</span>'}</div>
+      ${files.map((f) => `<div class="tk-row"><span class="chip" data-ref="${esc(f.id)}">${esc(f.id)}</span> ${f.loaded ? `opened ${f.copy ? 'earlier' : 'live'} (${esc(f.chars)} characters)` : '<span class="meta">not opened yet</span>'}</div>`).join("")}</div>
   </div>
   <h3>Search the paperwork <small class="meta">(search_paperwork)</small></h3>
   <form id="searchForm" class="searchf"><input id="searchQ" type="text" maxlength="80" placeholder="e.g. renewal, helicopter, battery" aria-label="Search the paperwork"><button class="act" type="submit">Search</button></form>
@@ -227,7 +227,7 @@ document.addEventListener("submit", (e) => {
       if (r.pending) { out.textContent = `Searching for "${q}": the call goes out within about ${r.etaSec}s (one call a minute).`; searchTimer = setTimeout(go, 6000); return; }
       if (r.error) { out.innerHTML = `<span class="overdue">${esc(r.error)}</span>`; return; }
       const rows = r.result || [];
-      out.innerHTML = rows.length ? `<b>${rows.length} lines mention "${esc(q)}"</b>` + rows.map((x) => `<div class="tk-row"><span class="chip" data-ref="${esc((x.account ? x.account + ":" : "") + x.path)}">${esc((x.account ? x.account + ":" : "") + x.path)}</span> ${esc(x.text)}</div>`).join("") : `No line mentions "${esc(q)}".`;
+      out.innerHTML = rows.length ? `<b>${r.total || rows.length} lines mention "${esc(q)}"${r.total && r.total > rows.length ? ` (first ${rows.length} shown)` : ""}${r.copy ? ", read earlier through the MCP" : ""}</b>` + rows.map((x) => `<div class="tk-row"><span class="chip" data-ref="${esc((x.account ? x.account + ":" : "") + x.path)}">${esc((x.account ? x.account + ":" : "") + x.path)}</span> ${esc(x.text)}</div>`).join("") : `No line mentions "${esc(q)}".`;
     } catch (err) { out.innerHTML = `<span class="overdue">${esc(err.message)}</span>`; }
   };
   go();
