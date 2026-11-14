@@ -35,7 +35,7 @@ export function mountScene(host, a, openRef) {
   people.forEach((p, i) => { p.x = Math.round(36 + (i * (216 - 0)) / Math.max(1, n - 1)); });
   const dockX = 292;
   const m = a.metrics;
-  const dockText = m ? `${m.docks} docks paid for. ${m.flights} flights in ${m.weeks} weeks.${m.never.length ? ` ${m.never.length} never flew.` : ""} ${m.top4Share}% of flights come from four docks.` : "";
+  const dockText = m ? `${m.docks} docks paid for. ${m.flights} flights in ${m.weeks} weeks.${m.never.length ? ` ${m.never.length} never flew.` : ""} ${m.docks > 4 ? ` ${m.top4Share}% of flights come from four docks.` : ""}` : "";
 
   host.innerHTML = `<div class="scene" id="scene"><canvas width="${W}" height="${H}" aria-label="Pixel street with this account's people and a drone"></canvas>
     <div class="s-people">${people.map((p, i) => `<button class="s-p" data-i="${i}" style="left:${(p.x / W) * 100}%" aria-label="${p.name}, ${p.relationship || "not on file"}"><span class="s-n">${p.name.replace(/^Insp\.\s*/, "").split(" ")[0]}</span></button>`).join("")}
@@ -104,6 +104,7 @@ export function mountScene(host, a, openRef) {
       }
     });
     if (a.id === "A") { const on = Math.floor(t / 350) % 2; R(tallest.x + (tallest.w >> 1) - 3, GROUND - tallest.h - 3, 3, 3, on ? "#ff4d4d" : "#4d4d70"); R(tallest.x + (tallest.w >> 1), GROUND - tallest.h - 3, 3, 3, on ? "#4d4d70" : "#4da0ff"); }
+    else if (a.id === "K") { [30, 120, 214].forEach((cx, k) => { R(cx - 1, GROUND - 22, 3, 22, "#3b2a22"); R(cx - 9, GROUND - 40, 19, 12, "#1f4d3a"); R(cx - 6, GROUND - 46, 13, 8, "#2a6a4d"); R(cx - 12, GROUND - 31, 25, 10, "#1b4433"); const on = (Math.floor(t / 900) + k) % 3; if (on) R(cx + 2, GROUND - 36, 2, 2, "#ffcf70"); }); R(242, GROUND - 26, 4, 26, "#4a4254"); R(268, GROUND - 26, 4, 26, "#4a4254"); R(242, GROUND - 28, 30, 3, "#e0682c"); R(250, GROUND - 14, 14, 14, "#2a2140"); R(253, GROUND - 22, 8, 6, "#ffcf70"); }
     else { [60, 150].forEach((cx, k) => { R(cx, GROUND - 52, 6, 52, "#2a2040"); R(cx, GROUND - 52, 6, 3, "#e0682c"); for (let s = 0; s < 5; s++) { const u = ((t / 40 + s * 22 + k * 9) % 110); g.globalAlpha = Math.max(0, 0.45 - u / 250); R(cx + 1 + Math.sin(u / 11 + s) * 4, GROUND - 56 - u / 2, 4, 3, "#a9a4b8"); g.globalAlpha = 1; } }); }
     R(0, GROUND, W, 6, "#3a3342"); R(0, GROUND + 6, W, 12, "#24212c"); R(0, GROUND, W, 1, "#4a4254");
     for (let x = -((t / 40) % 24); x < W; x += 24) R(x, GROUND + 11, 12, 1, "#7d778a");

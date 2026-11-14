@@ -21,7 +21,7 @@ function renderStatus() {
   const s = view.status, el = $("#status");
   const age = (t) => (t ? Math.max(0, Math.round((s.now - t) / 1000)) + "s ago" : "not yet");
   const ok = (k) => `<span class="pill ${k === "live" ? "live" : "base"}">${k === "live" ? "live" : "last copy"}</span>`;
-  el.innerHTML = `<span>As of <b>${esc(view.asOf)}</b></span><span>Accounts ${ok(s.accounts)} ${age(s.accountsAt)}</span><span>Events ${ok(s.signals)} ${age(s.signalsAt)}</span><span>Notes written: <b>${s.notesWritten.length}</b></span><span>Tools live: <b>${view.toolkit ? view.toolkit.liveTools : 0}/14</b></span><span>Next call ${Math.ceil(s.nextCallInMs / 1000)}s</span>${s.error ? `<span class="overdue">MCP: ${esc(s.error.message)}</span>` : ""}${s.tokenConfigured ? "" : `<span class="overdue">AQ_TOKEN not set</span>`}`;
+  el.innerHTML = `<span>As of <b>${esc(view.asOf)}</b></span><span>Accounts ${ok(s.accounts)} ${age(s.accountsAt)}</span><span>Events ${ok(s.signals)} ${age(s.signalsAt)}</span><span>Notes written: <b>${s.notesWritten.length}</b></span><span>Tools live: <b>${view.toolkit ? view.toolkit.liveTools : 0}/${view.toolkit ? view.toolkit.tools.length : 16}</b></span><span>Next call ${Math.ceil(s.nextCallInMs / 1000)}s</span>${s.error ? `<span class="overdue">MCP: ${esc(s.error.message)}</span>` : ""}${s.tokenConfigured ? "" : `<span class="overdue">AQ_TOKEN not set</span>`}`;
 }
 
 function renderNewBar() {
@@ -111,6 +111,7 @@ function hero(a) {
 
 function usageChart(a) {
   const m = a.metrics; if (!m) return "";
+  if (m.docks <= 4) return `<h3>Where the flying happens (${m.weeks} weeks, ${m.flights} flights)</h3><div class="bars">${m.top4.map((d) => `<div class="bar"><span class="bl">${esc(d.dock)}</span><span class="bt"><i style="width:${m.flights ? (d.flights / Math.max(1, m.flights)) * 100 : 2}%"></i></span><span class="bv">${d.flights} <small>(${d.recent} in last 4 wks)</small></span></div>`).join("")}</div><p>${m.never.length ? `Never flew: ${m.never.map((d) => `<span class="chip demo">${esc(d)}</span>`).join(" ")}` : ""} <span class="meta">${m.connectionLosses} connection-lost events.</span> ${refs([a.id + ":usage_weekly.csv", a.id + ":device_events.csv"])}</p>`;
   const max = Math.max(...m.top4.map((d) => d.flights), 1);
   const rest = m.flights - m.top4.reduce((t, d) => t + d.flights, 0);
   return `<h3>Where the flying happens (${m.weeks} weeks, ${m.flights} flights)</h3>
@@ -136,8 +137,8 @@ function toolkit(a) {
     relNote = `<p class="meta">The three nightly docks flew until the week of 2026-11-09. The last dock update (${esc(last.version)}) went out on ${esc(last.date)}, ${gap} days earlier, so a software update is not the likely cause of the drop.</p>`;
   } else if (last) relNote = `<p class="meta">Latest update ${esc(last.version)} on ${esc(last.date)}. Nothing in the notes touches batteries.</p>`;
   const schema = k.schema.checked ? (k.schema.missing.length || k.schema.acctMissing.length ? `<span class="overdue">missing: ${esc([...k.schema.missing, ...k.schema.acctMissing].join(", "))}</span>` : `<span class="okc">every required field is present</span>`) : "waiting for the first live export";
-  return `<section class="q" id="q6"><div class="qn">Toolkit</div><h2>All 14 MCP tools, and what each one does here</h2>
-  <p class="meta">${k.liveTools} of 14 have answered live this session. The server spends one call a minute across all of them. Export check against ${esc(k.schemaName || "the schema")} (get_data_format): ${schema}.</p>
+  return `<section class="q" id="q6"><div class="qn">Toolkit</div><h2>All ${k.tools.length} MCP tools, and what each one does here</h2>
+  <p class="meta">${k.liveTools} of ${k.tools.length} have answered live this session. The server spends one call a minute across all of them. Export check against ${esc(k.schemaName || "the schema")} (get_data_format): ${schema}.</p>
   <div class="tk-grid">
     <div class="tk-card"><h4>Product requests from this account <small class="meta">(get_feature_requests)</small></h4>
       ${mine.length ? mine.map((r) => `<div class="tk-row"><b>${esc(r.id)}</b> ${esc(r.title)}<br><span class="meta">${esc(r.status)} · ${esc(r.mentions)} mentions across customers · ${r.by.filter((b) => b.account === a.id).map((b) => esc(b.who) + " (" + esc(b.via) + ")").join("; ")}</span></div>`).join("") : '<p class="meta">None raised by this account.</p>'}
@@ -168,7 +169,7 @@ function render(animate = true) {
   <h2>${esc(a.name)} <span class="meta">(account ${esc(a.id)} · ${esc(a.currency)})</span></h2>
   <div id="scene-mount"></div>
   ${hero(a)}
-  <div class="reality"><b>What the data says:</b> ${esc(a.reality)} ${refs(a.id === "A" ? ["A:usage_weekly.csv"] : ["B:usage_weekly.csv", "sr_roll_0"])}</div>
+  <div class="reality"><b>What the data says:</b> ${esc(a.reality)} ${refs(a.id === "A" ? ["A:usage_weekly.csv"] : a.id === "B" ? ["B:usage_weekly.csv", "sr_roll_0"] : [a.id + ":usage_weekly.csv"])}</div>
   ${sigs.length ? `<h3>Live events on this account</h3><div class="sigs">${sigs.map((s) => `<div class="sig">${s.isNew ? '<span class="badge new">new</span>' : ""}<b>${esc(s.title)}</b> <span class="meta">${esc(s.dated)}</span> ${refs([s.id])}<div>${esc(s.summary)}</div></div>`).join("")}</div>` : ""}
   <section class="q" id="q1"><div class="qn">Question 1</div><h2>What is the book worth?</h2>${q1(a)}${usageChart(a)}</section>
   <section class="q" id="q2"><div class="qn">Question 2</div><h2>Who holds the power?</h2>${q2(a)}</section>
