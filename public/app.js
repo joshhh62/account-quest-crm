@@ -85,19 +85,56 @@ function q5(a) {
   return `<table><thead><tr><th>What we do not know</th><th>Why it matters</th><th>Who could fill it</th><th>Source</th></tr></thead><tbody>${a.q5.map((g) => `<tr><td>${g.isNew ? '<span class="badge new">new</span>' : ""}${esc(g.gap)}</td><td>${esc(g.why)}</td><td>${esc(g.who)}</td><td>${refs(g.refs)}</td></tr>`).join("")}</tbody></table>`;
 }
 
+
+function daysBetween(a, b) { return Math.round((new Date(b) - new Date(a)) / 86400000); }
+
+function hero(a) {
+  const q = a.q1, c = a.currency, top = a.q3[0];
+  const risk = [...a.q4].filter((r) => r.severity === "high" && r.daysTo != null && r.daysTo >= 0).sort((x, y) => x.daysTo - y.daysTo)[0] || a.q4.find((r) => r.severity === "high") || a.q4[0];
+  const left = daysBetween(view.asOf, q.contract.ends);
+  const parts = [["Closed", q.closedTotal, "closed"], ["Backed, open", q.backedTotal, "backed"], ["Offers open", q.openOffersTotal, "offers"]];
+  const sum = parts.reduce((t, p) => t + p[1], 0) || 1;
+  return `<section class="hero" id="brief">
+    <div class="hero-h"><span class="qn">Monday briefing</span><h2>${esc(a.name)}</h2></div>
+    <div class="hero-grid">
+      <div class="hero-card"><small>Book, counted on evidence</small><b>${money(q.closedTotal + q.backedTotal, c)}</b>
+        <div class="stack">${parts.map((p) => `<i class="seg ${p[2]}" style="width:${(p[1] / sum) * 100}%" title="${p[0]}: ${money(p[1], c)}"></i>`).join("")}</div>
+        <div class="legend">${parts.map((p) => `<span><i class="dot ${p[2]}"></i>${p[0]} ${money(p[1], c)}</span>`).join("")}</div></div>
+      <div class="hero-card"><small>Contract at stake</small><b>${money(q.contract.value, c)} a year</b>
+        <div class="meta">Ends ${esc(q.contract.ends)} (${left} days from ${esc(view.asOf)}). No automatic renewal.</div>${refs(q.contract.refs)}</div>
+      <div class="hero-card"><small>Do this first</small><b class="sm">${esc(top.title)}</b>
+        <div class="meta">${esc(top.owner)} · due ${esc(top.due)} (${when(top.daysToDue)})</div></div>
+      <div class="hero-card warn"><small>Biggest risk</small><b class="sm">${esc(risk.title)}</b>
+        <div class="meta">${risk.date ? esc(risk.date) + " · " + when(risk.daysTo) : "date not on file"}</div>${refs(risk.refs.slice(0, 2))}</div>
+    </div>
+    <nav class="jump"><a href="#q1">1 Worth</a><a href="#q2">2 Power</a><a href="#q3">3 First moves</a><a href="#q4">4 Going wrong</a><a href="#q5">5 Unknown</a></nav>
+  </section>`;
+}
+
+function usageChart(a) {
+  const m = a.metrics; if (!m) return "";
+  const max = Math.max(...m.top4.map((d) => d.flights), 1);
+  const rest = m.flights - m.top4.reduce((t, d) => t + d.flights, 0);
+  return `<h3>Where the flying happens (${m.weeks} weeks, ${m.flights} flights)</h3>
+  <div class="bars">${m.top4.map((d) => `<div class="bar"><span class="bl">${esc(d.dock)}</span><span class="bt"><i style="width:${(d.flights / max) * 100}%"></i></span><span class="bv">${d.flights} <small>(${d.recent} in last 4 wks)</small></span></div>`).join("")}
+  <div class="bar rest"><span class="bl">other ${m.docks - 4} docks</span><span class="bt"><i style="width:${(rest / m.docks / max) * 100}%"></i></span><span class="bv">${rest} together, about ${(rest / (m.docks - 4)).toFixed(0)} each</span></div></div>
+  <p><b>${m.top4Share}%</b> of flights come from four docks. ${m.never.length ? `Never flew: ${m.never.map((d) => `<span class="chip demo">${esc(d)}</span>`).join(" ")}` : ""} <span class="meta">${m.connectionLosses} connection-lost events.</span> ${refs([a.id + ":usage_weekly.csv"])}</p>`;
+}
+
 function render() {
   renderStatus(); renderNewBar(); renderTabs();
   const a = view.accounts.find((x) => x.id === tab);
   const sigs = view.signals.filter((s) => s.account === a.id);
   $("#app").innerHTML = `
-  <h2>${esc(a.name)} <span class="meta">(account ${esc(a.id)}, ${esc(a.currency)})</span></h2>
+  <h2>${esc(a.name)} <span class="meta">(account ${esc(a.id)} · ${esc(a.currency)})</span></h2>
+  ${hero(a)}
   <div class="reality"><b>What the data says:</b> ${esc(a.reality)} ${refs(a.id === "A" ? ["A:usage_weekly.csv"] : ["B:usage_weekly.csv", "sr_roll_0"])}</div>
   ${sigs.length ? `<h3>Live events on this account</h3><div class="sigs">${sigs.map((s) => `<div class="sig">${s.isNew ? '<span class="badge new">new</span>' : ""}<b>${esc(s.title)}</b> <span class="meta">${esc(s.dated)}</span> ${refs([s.id])}<div>${esc(s.summary)}</div></div>`).join("")}</div>` : ""}
-  <section class="q"><div class="qn">Question 1</div><h2>What is the book worth?</h2>${q1(a)}</section>
-  <section class="q"><div class="qn">Question 2</div><h2>Who holds the power?</h2>${q2(a)}</section>
-  <section class="q"><div class="qn">Question 3</div><h2>What do you do first?</h2>${q3(a)}</section>
-  <section class="q"><div class="qn">Question 4</div><h2>What is about to go wrong?</h2>${q4(a)}</section>
-  <section class="q"><div class="qn">Question 5</div><h2>What do you still not know?</h2>${q5(a)}</section>`;
+  <section class="q" id="q1"><div class="qn">Question 1</div><h2>What is the book worth?</h2>${q1(a)}${usageChart(a)}</section>
+  <section class="q" id="q2"><div class="qn">Question 2</div><h2>Who holds the power?</h2>${q2(a)}</section>
+  <section class="q" id="q3"><div class="qn">Question 3</div><h2>What do you do first?</h2>${q3(a)}</section>
+  <section class="q" id="q4"><div class="qn">Question 4</div><h2>What is about to go wrong?</h2>${q4(a)}</section>
+  <section class="q" id="q5"><div class="qn">Question 5</div><h2>What do you still not know?</h2>${q5(a)}</section>`;
 }
 
 function openRef(id) {
