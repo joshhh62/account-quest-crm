@@ -5,9 +5,10 @@ const W = 320, H = 100, GROUND = 82;
 const SKIN = ["#f0c9a0", "#d29b6b", "#9a6a45", "#5e3b28"];
 const HAIR = ["#2a1a12", "#6b3b1a", "#d9a441", "#1b1b1f", "#b3532a"];
 const SHIRT = ["#3d7be0", "#e0682c", "#3fae6a", "#e0b030", "#8b6bd6", "#d8d2c4"];
-const PANTS = ["#2b2f4a", "#3a2f2a", "#27403a", "#42324d"];
+const PANTS = ["#3b4170", "#5a4636", "#2f5a4f", "#5e4570"];
 const MOOD = { ally: "#4ade80", warm: "#c5e35a", neutral: "#aaa59a", guarded: "#ff7064" };
 const OUT = "#140c08";
+const RIM = "#f7efe0";
 
 function hash(s) { let h = 2166136261; for (const c of String(s)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
 function rng(seed) { let s = seed || 1; return () => ((s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296); }
@@ -57,17 +58,18 @@ export function mountScene(host, a, openRef) {
 
   function drawPerson(p, t, hop, blink) {
     const x = p.x, L = p.look; let y = GROUND - Math.round(hop);
-    g.globalAlpha = p.available === false ? 0.5 : 1;
+    g.globalAlpha = p.available === false ? 0.75 : 1;
+    g.globalAlpha *= 0.28; R(x - 8, GROUND - 2, 16, 3, "#ffd9a8"); g.globalAlpha = p.available === false ? 0.75 : 1;
     R(x - 5, GROUND, 10, 1, "rgba(0,0,0,.35)");
     const bob = Math.round(Math.sin((t + p.phase) / 380) * 0.6);
     y += bob;
-    R(x - 4, y - 5, 8, 6, OUT); R(x - 3, y - 4, 2, 4, L.pants); R(x + 1, y - 4, 2, 4, L.pants); R(x - 3, y - 1, 2, 1, "#111"); R(x + 1, y - 1, 2, 1, "#111");
-    R(x - 5, y - 12, 10, 8, OUT); R(x - 4, y - 11, 8, 6, L.shirt); R(x - 5, y - 10, 1, 5, "rgba(0,0,0,.25)"); R(x + 4, y - 10, 1, 5, "rgba(0,0,0,.25)");
+    R(x - 4, y - 5, 8, 6, RIM); R(x - 3, y - 4, 2, 4, L.pants); R(x + 1, y - 4, 2, 4, L.pants); R(x - 3, y - 1, 2, 1, "#111"); R(x + 1, y - 1, 2, 1, "#111");
+    R(x - 5, y - 12, 10, 8, RIM); R(x - 4, y - 11, 8, 6, L.shirt); R(x - 5, y - 10, 1, 5, "rgba(0,0,0,.25)"); R(x + 4, y - 10, 1, 5, "rgba(0,0,0,.25)");
     R(x - 4, y - 7, 8, 1, "rgba(0,0,0,.18)");
-    R(x - 4, y - 19, 8, 8, OUT); R(x - 3, y - 18, 6, 6, L.skin);
+    R(x - 4, y - 19, 8, 8, RIM); R(x - 3, y - 18, 6, 6, L.skin);
     if (L.style === 0) { R(x - 3, y - 19, 6, 2, L.hair); R(x - 4, y - 18, 1, 3, L.hair); R(x + 3, y - 18, 1, 3, L.hair); }
-    else if (L.style === 1) { R(x - 5, y - 22, 10, 5, OUT); R(x - 4, y - 21, 8, 4, L.hair); R(x - 4, y - 17, 1, 2, L.hair); R(x + 3, y - 17, 1, 2, L.hair); }
-    else if (L.style === 2) { R(x - 4, y - 20, 8, 3, OUT); R(x - 3, y - 19, 6, 2, L.shirt); R(x - 5, y - 17, 4, 1, OUT); R(x - 5, y - 17, 3, 1, L.shirt); }
+    else if (L.style === 1) { R(x - 5, y - 22, 10, 5, RIM); R(x - 4, y - 21, 8, 4, L.hair); R(x - 4, y - 17, 1, 2, L.hair); R(x + 3, y - 17, 1, 2, L.hair); }
+    else if (L.style === 2) { R(x - 4, y - 20, 8, 3, RIM); R(x - 3, y - 19, 6, 2, L.shirt); R(x - 5, y - 17, 4, 1, RIM); R(x - 5, y - 17, 3, 1, L.shirt); }
     else { R(x - 4, y - 19, 8, 3, L.hair); R(x - 4, y - 17, 1, 6, L.hair); R(x + 3, y - 17, 1, 6, L.hair); }
     if (!blink) { R(x - 2, y - 15, 1, 1, OUT); R(x + 1, y - 15, 1, 1, OUT); } else { R(x - 2, y - 14, 2, 1, OUT); R(x + 1, y - 14, 2, 1, OUT); }
     R(x - 1, y - 13, 2, 1, "#8a3b2a");
