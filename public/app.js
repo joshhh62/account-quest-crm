@@ -1,3 +1,4 @@
+import { mountScene } from "/scene.js";
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const SYM = { GBP: "£", EUR: "€" };
@@ -127,6 +128,7 @@ function render(animate = true) {
   const sigs = view.signals.filter((s) => s.account === a.id);
   $("#app").innerHTML = `
   <h2>${esc(a.name)} <span class="meta">(account ${esc(a.id)} · ${esc(a.currency)})</span></h2>
+  <div id="scene-mount"></div>
   ${hero(a)}
   <div class="reality"><b>What the data says:</b> ${esc(a.reality)} ${refs(a.id === "A" ? ["A:usage_weekly.csv"] : ["B:usage_weekly.csv", "sr_roll_0"])}</div>
   ${sigs.length ? `<h3>Live events on this account</h3><div class="sigs">${sigs.map((s) => `<div class="sig">${s.isNew ? '<span class="badge new">new</span>' : ""}<b>${esc(s.title)}</b> <span class="meta">${esc(s.dated)}</span> ${refs([s.id])}<div>${esc(s.summary)}</div></div>`).join("")}</div>` : ""}
@@ -135,6 +137,7 @@ function render(animate = true) {
   <section class="q" id="q3"><div class="qn">Question 3</div><h2>What do you do first?</h2>${q3(a)}</section>
   <section class="q" id="q4"><div class="qn">Question 4</div><h2>What is about to go wrong?</h2>${q4(a)}</section>
   <section class="q" id="q5"><div class="qn">Question 5</div><h2>What do you still not know?</h2>${q5(a)}</section>`;
+  mountScene($("#scene-mount"), a, openRef);
   window.__fx && window.__fx.after($("#app"), animate);
 }
 
