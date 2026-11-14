@@ -1,0 +1,12 @@
+{
+  "name": "account-quest-crm",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Live CRM for two Account Quest accounts. Reads the game's MCP server-side; every number cites its source id.",
+  "scripts": {
+    "dev": "node scripts/dev.js",
+    "test": "node scripts/selftest.js"
+  },
+  "engines": { "node": ">=20" }
+}

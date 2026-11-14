@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Account CRM: Eastern Counties and Aldermoor</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="top">
+  <div>
+    <h1>Account CRM</h1>
+    <p class="sub">Two accounts, five questions each. Every number cites the id it came from. Click any <span class="chip demo">id</span> to read the source.</p>
+  </div>
+  <div id="status" class="status" aria-live="polite"></div>
+</header>
+<div id="newbar"></div>
+<nav id="tabs" class="tabs" role="tablist"></nav>
+<main id="app"><p class="loading">Loading the accounts…</p></main>
+<aside id="drawer" class="drawer" hidden>
+  <button id="drawer-close" class="close" aria-label="Close source">×</button>
+  <div id="drawer-body"></div>
+</aside>
+<script src="/app.js" type="module"></script>
+</body>
+</html>
