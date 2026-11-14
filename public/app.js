@@ -2,7 +2,7 @@ const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const SYM = { GBP: "£", EUR: "€" };
 const money = (v, cur) => (v == null ? "no value in the data" : `${SYM[cur] || ""}${Number(v).toLocaleString("en-GB")}`);
-let view = null, tab = "A", firstLoad = true;
+let view = null, tab = "A", firstLoad = true, lastKey = "";
 const seenSignals = new Set();
 
 const refs = (ids = []) => ids.map((id) => `<button class="chip" data-ref="${esc(id)}">${esc(id)}</button>`).join("");
@@ -121,7 +121,7 @@ function usageChart(a) {
   <p><b>${m.top4Share}%</b> of flights come from four docks. ${m.never.length ? `Never flew: ${m.never.map((d) => `<span class="chip demo">${esc(d)}</span>`).join(" ")}` : ""} <span class="meta">${m.connectionLosses} connection-lost events.</span> ${refs([a.id + ":usage_weekly.csv"])}</p>`;
 }
 
-function render() {
+function render(animate = true) {
   renderStatus(); renderNewBar(); renderTabs();
   const a = view.accounts.find((x) => x.id === tab);
   const sigs = view.signals.filter((s) => s.account === a.id);
@@ -135,6 +135,7 @@ function render() {
   <section class="q" id="q3"><div class="qn">Question 3</div><h2>What do you do first?</h2>${q3(a)}</section>
   <section class="q" id="q4"><div class="qn">Question 4</div><h2>What is about to go wrong?</h2>${q4(a)}</section>
   <section class="q" id="q5"><div class="qn">Question 5</div><h2>What do you still not know?</h2>${q5(a)}</section>`;
+  window.__fx && window.__fx.after($("#app"), animate);
 }
 
 function openRef(id) {
@@ -146,7 +147,7 @@ function openRef(id) {
 document.addEventListener("click", async (e) => {
   const t = e.target.closest("[data-tab],[data-ref],[data-notes],#drawer-close");
   if (!t) return;
-  if (t.dataset.tab) { tab = t.dataset.tab; render(); }
+  if (t.dataset.tab) { tab = t.dataset.tab; render(true); window.scrollTo({ top: 0, behavior: "smooth" }); }
   else if (t.dataset.ref) openRef(t.dataset.ref);
   else if (t.id === "drawer-close") $("#drawer").hidden = true;
   else if (t.dataset.notes) {
@@ -164,7 +165,8 @@ async function load() {
   try {
     const r = await fetch("/api/state", { cache: "no-store" });
     view = await r.json();
-    render();
+    const key = JSON.stringify({ ...view, status: null });
+    if (key !== lastKey) { lastKey = key; render(firstLoad); } else { renderStatus(); renderNewBar(); }
     if (firstLoad) { view.signals.forEach((s) => { if (!s.isNew) seenSignals.add(s.id); }); firstLoad = false; }
   } catch (err) { $("#status").textContent = "Could not reach the server: " + err.message; }
 }
