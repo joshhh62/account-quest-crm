@@ -67,3 +67,6 @@ One call a minute covers all of them, so the server rotates through them after t
 
 ## New accounts released during the build
 `whoami` lists any account released mid-game (`new_accounts`, `pack`). The server loads it with `get_new_account`, opens its files with `get_new_account_file`, reads its paperwork with `get_all_paperwork`, and the CRM adds a tab for it. Account K (Kestrel Estates) arrived this way. A hand-written layer exists for K; any later account gets the same five answers built from its own facts, deals, offers and deadlines, with unverified claims listed as gaps. No code change is needed to take a new account in.
+
+## Staying fresh without a visitor
+The server reads the MCP only while it is awake. A GitHub Action (`.github/workflows/keepalive.yml`) opens `/api/state` every 5 minutes and a daily Vercel cron does the same, so new accounts and signals are picked up with nobody on the page.
