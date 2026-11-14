@@ -45,7 +45,7 @@ variable (mark it sensitive), deploy. `api/state.js` and `api/notes.js` are the 
   is shared, so a busy instance may show "last copy" for a minute while another instance holds the budget.
 - The ranking weights are a judgement call and are written in `lib/engine.js` (`priority`).
 
-## All 14 MCP tools
+## All 16 MCP tools
 
 The Toolkit section at the bottom of each account lists every tool, what the CRM uses it for, its last result and how many times it has been called.
 
@@ -64,3 +64,6 @@ The Toolkit section at the bottom of each account lists every tool, what the CRM
 | get_flytbase_team | Who to pull in, beside each move owner |
 
 One call a minute covers all of them, so the server rotates through them after the core steps.
+
+## New accounts released during the build
+`whoami` lists any account released mid-game (`new_accounts`, `pack`). The server loads it with `get_new_account`, opens its files with `get_new_account_file`, reads its paperwork with `get_all_paperwork`, and the CRM adds a tab for it. Account K (Kestrel Estates) arrived this way. A hand-written layer exists for K; any later account gets the same five answers built from its own facts, deals, offers and deadlines, with unverified claims listed as gaps. No code change is needed to take a new account in.
